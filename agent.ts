@@ -71,7 +71,7 @@ if (!GEMINI_BASE_URL || !GEMINI_API_KEY || !GEMINI_MODEL_NAME) {
 
 const openAIClient = new OpenAI({
   apiKey: GEMINI_API_KEY,
-  //   baseURL: GEMINI_BASE_URL,
+  baseURL: GEMINI_BASE_URL,
 });
 
 const modelProvider = new OpenAIProvider({
@@ -93,14 +93,14 @@ const takeScreenshotTool = tool({
     const screenshotBytes = await page.screenshot({
       fullPage: true,
       type: "png",
-      path: path || `screenshot-${Date.now()}`,
+      path: path || `screenshot-${Date.now()}.png`,
     });
     await page.waitForTimeout(500);
 
     const base64 = screenshotBytes.toString("base64");
     screenshotSpinner.succeed(
       chalk.hex("#FFB84D")(
-        `📸 Screenshot: ${path || `screenshot-${Date.now()}`}`
+        `📸 Screenshot: ${path || `screenshot-${Date.now()}.png`}`
       )
     );
 
@@ -360,13 +360,13 @@ const SYSTEM_INSTRUCTIONS = `
 
     WORKFLOW:
     1. Navigate to the target URL
-    2. Use get_page_structure to analyze the page and find form elements  
+    2. Use extract_page_elements to analyze the page and find form elements  
     3. Use the selector information from the structure to interact with elements
     4. Complete the requested actions step by step
 
     AVAILABLE TOOLS:
     - navigate: Go to a URL
-    - get_page_structure: Get detailed page structure with multiple selector options for each element
+    - extract_page_elements: Get detailed page structure with multiple selector options for each element
     - clickOnElement: Click using CSS selector 
     - type: Type text into input fields
     - scroll: Scroll the page
@@ -375,7 +375,7 @@ const SYSTEM_INSTRUCTIONS = `
     - ask_user: Ask the user for more information if needed
 
     ELEMENT SELECTION STRATEGY:
-    The get_page_structure tool provides multiple selectors for each element. Choose selectors in this order:
+    The extract_page_elements tool provides multiple selectors for each element. Choose selectors in this order:
     1. ID selector: #elementId (most reliable)
     2. Name attribute: [name="elementName"] 
     3. Specific input type: input[type="email"]
@@ -397,7 +397,7 @@ const SYSTEM_INSTRUCTIONS = `
     - Use wait tool if elements need time to appear
 
     IMPORTANT NOTES:
-    - Always use get_page_structure first to understand what elements are available
+    - Always use extract_page_elements first to understand what elements are available
     - The structure provides multiple selector options - use the most reliable one
     - Click before typing to ensure field focus
     - Look for visible: true in element info before interacting
